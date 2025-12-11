@@ -54,3 +54,19 @@ def buscar_livro(livro_id: int):
         if livro is None:
             raise HTTPException(status_code=404, detail="Livro não encontrado")
         return dict(livro)
+    
+
+# DELETE por id
+@app.delete("/livros/{livro_id}", status_code=status.HTTP_204_NO_CONTENT)
+def deletar_livro(livro_id: int):
+    with get_db() as conn:
+        # Verifica se existe
+        cursor = conn.execute("SELECT id FROM livros WHERE id = ?", (livro_id,))
+        if not cursor.fetchone():
+            raise HTTPException(status_code=404, detail="Livro não encontrado")
+
+        # Deleta
+        conn.execute("DELETE FROM livros WHERE id = ?", (livro_id,))
+        conn.commit()
+
+    return None  # 204 não retorna corpo
